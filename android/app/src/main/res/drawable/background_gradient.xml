@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <gradient
+        android:angle="270"
+        android:startColor="#0f1218"
+        android:centerColor="#141820"
+        android:endColor="#1a1f26"
+        android:type="linear" />
+
+    <!-- Decorative orbs -->
+    <item android:gravity="top|center_horizontal">
+        <shape android:shape="oval">
+            <solid android:color="#08DFD0B8" />
+            <size android:width="300dp" android:height="300dp" />
+        </shape>
+    </item>
+
+    <item android:gravity="bottom|left">
+        <shape android:shape="oval">
+            <solid android:color="#1A948979" />
+            <size android:width="200dp" android:height="200dp" />
+        </shape>
+    </item>
+
+</shape>

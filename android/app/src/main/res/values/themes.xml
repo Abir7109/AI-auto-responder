@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Theme - Obsidian Dark -->
+    <style name="Theme.AIAutoResponder" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/accent_sand</item>
+        <item name="colorPrimaryDark">@color/obsidian_dark</item>
+        <item name="colorPrimaryContainer">@color/accent_sand</item>
+        <item name="colorOnPrimary">@color/obsidian_dark</item>
+        <item name="colorOnPrimaryContainer">@color/accent_sand</item>
+
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/accent_warm</item>
+        <item name="colorSecondaryContainer">@color/surface_variant</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
+
+        <!-- Background Colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/obsidian_dark</item>
+        <item name="android:navigationBarColor">@color/obsidian_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Window -->
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- Ripple -->
+        <item name="colorControlHighlight">@color/ripple</item>
+
+        <!-- Text -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/hint</item>
+    </style>
+
+    <!-- Glass Card Style -->
+    <style name="GlassCard">
+        <item name="android:background">@drawable/glass_card_background</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <!-- Glass Button Style -->
+    <style name="GlassButton" parent="Widget.Material3.Button">
+        <item name="android:background">@drawable/glass_button_background</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Primary Glass Button -->
+    <style name="GlassButton.Primary">
+        <item name="android:background">@drawable/glass_button_primary_background</item>
+        <item name="android:textColor">@color/obsidian_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Text Styles -->
+    <style name="TextAppearance.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.Subtitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Input Style -->
+    <style name="Widget.AIAutoResponder.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_input_box_stroke</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/hint</item>
+    </style>
+
+    <!-- Dialog Theme for About Modal -->
+    <style name="Theme.AIAutoResponder.Dialog" parent="Theme.Material3.Dark.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+    
+    <!-- Time Picker Theme -->
+    <style name="Theme.AIAutoResponder.TimePicker" parent="Theme.Material3.Dark.Dialog">
+        <item name="colorPrimary">@color/accent_sand</item>
+        <item name="colorOnPrimary">@color/obsidian_dark</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/foreground</item>
+        <item name="android:windowBackground">@color/surface</item>
+    </style>
+</resources>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI AutoResponder - Never Miss a Message</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Floating icons in background */
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -10px) rotate(5deg); }
+            50% { transform: translate(0, -20px) rotate(0deg); }
+            75% { transform: translate(-10px, -10px) rotate(-5deg); }
+        }
+        .drift { animation: drift 20s ease-in-out infinite; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .float-anim { animation: float 6s ease-in-out infinite; }
+
+        /* Desktop styles - show play badge, hide mobile button */
+        @media (min-width: 769px) {
+            .desktop-play-badge {
+                display: inline-flex !important;
+            }
+            .mobile-download-btn {
+                display: none !important;
+            }
+        }
+
+        /* Default hide for mobile elements */
+        .mobile-download-btn, .desktop-play-badge {
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr !important;
+                gap: 40px !important;
+                min-height: auto !important;
+            }
+            .hero-text {
+                order: 1;
+                text-align: center;
+            }
+            .hero-phone {
+                order: 2;
+            }
+            .hero-phone .handwritten {
+                display: none;
+            }
+            .hero-phone > div:first-child {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+            .navbar .hidden.md\:flex {
+                display: none !important;
+            }
+            section {
+                padding: 60px 16px !important;
+            }
+            .phone-mockup {
+                width: 220px !important;
+                height: 420px !important;
+            }
+            .hero-section {
+                padding-top: 100px !important;
+                min-height: auto !important;
+            }
+            h1 {
+                font-size: 2rem !important;
+            }
+            .mobile-download-btn {
+                display: flex !important;
+            }
+            .stats-row {
+                justify-content: center;
+                gap: 20px !important;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.dark .btn-primary {
+            background: #fff;
+            color: #000;
+        }
+        .btn-primary:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        body.dark .btn-primary:hover {
+            background: #ddd;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .platform-icon {
+            transition: all 0.3s ease;
+        }
+        .platform-icon:hover {
+            transform: translateY(-5px);
+        }
+
+        .msg-received {
+            background: #f0f0f0;
+            padding: 10px 14px;
+            border-radius: 18px 18px 18px 4px;
+            max-width: 80%;
+            font-size: 13px;
+        }
+        .msg-sent {
+            background: #1a1a1a;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 80%;
+            font-size: 13px;
+            margin-left: auto;
+        }
+
+        .typing {
+            display: flex; gap: 4px; padding: 10px 14px;
+            background: #f0f0f0; border-radius: 18px; width: fit-content;
+        }
+        .typing span {
+            width: 8px; height: 8px; background: #1a1a1a; border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing span:nth-child(1) { animation-delay: 0s; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
+
+        section { padding: 80px 20px; }
+
+        /* Handwritten font for "for" */
+        .handwritten {
+            font-family: 'Caveat', cursive;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        /* Reviews slider */
+        .reviews-slider {
+            overflow: hidden;
+            width: 100%;
+        }
+        .reviews-track {
+            display: flex;
+            gap: 24px;
+            animation: slideLeft 30s linear infinite;
+        }
+        @keyframes slideLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .review-card {
+            min-width: 340px;
+            flex-shrink: 0;
+        }
+        
+        /* Dark mode review card */
+        body.dark .review-card {
+            background: #1a1a1a !important;
+            border: 1px solid #333 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background icons (very subtle) -->
+    <div class="drift" style="position: fixed; top: 20%; left: 5%; opacity: 0.05; z-index: 0;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+    <div class="drift" style="position: fixed; top: 50%; right: 8%; opacity: 0.04; z-index: 0; animation-delay: -5s;">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+    </div>
+    <div class="drift" style="position: fixed; bottom: 30%; left: 10%; opacity: 0.04; z-index: 0; animation-delay: -10s;">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    </div>
+    <div class="drift" style="position: fixed; top: 30%; right: 15%; opacity: 0.03; z-index: 0; animation-delay: -15s;">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="#1a1a1a"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3z"/></svg>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar" style="border-bottom: 1px solid #f0f0f0;">
+        <div class="max-w-6xl mx-auto px-6 flex justify-between items-center;">
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="AI AutoResponder" class="w-10 h-10 rounded-xl" style="object-fit: contain;">
+                <span class="text-xl font-bold nav-text" style="color: #1a1a1a;">AI AutoResponder</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Features</a>
+                <a href="#demo" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Demo</a>
+                <a href="#reviews" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Reviews</a>
+                <a href="#download" class="btn-primary">Download</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Coming Soon Modal -->
+    <div id="comingSoonModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;" onclick="closeComingSoon(event)">
+        <div style="background: white; padding: 40px; border-radius: 24px; max-width: 400px; text-align: center; position: relative;" onclick="event.stopPropagation()">
+            <button onclick="closeComingSoonModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 12px; color: #1a1a1a;">Coming Soon!</h3>
+            <p style="color: #666; font-size: 1rem; line-height: 1.6;">We're working hard to bring you the best AI AutoResponder experience on Google Play Store.</p>
+            <p style="color: #999; font-size: 14px; margin-top: 20px;">Stay tuned!</p>
+        </div>
+    </div>
+
+    <!-- Hero Section - Clean White with Golden Ratio -->
+    <section class="hero-section" style="min-height: 100vh; padding-top: 120px; position: relative; z-index: 1;">
+        <div class="max-w-6xl mx-auto px-6;">
+            <!-- Left column - Text content -->
+            <div class="hero-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; min-height: calc(100vh - 120px);">
+                <div class="reveal hero-text">
+                    <!-- Badge -->
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: #f5f5f5; padding: 8px 16px; border-radius: 50px; margin-bottom: 24px;">
+                        <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></span>
+                        <span style="font-size: 14px; font-weight: 500; color: #666;">AI Auto Responder</span>
+                    </div>
+                    
+                    <!-- Headline -->
+                    <h1 style="font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 20px; letter-spacing: 0.02em; color: #1a1a1a;">
+                        Hey, I'm your<br><span style="background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Assistant!</span>
+                    </h1>
+                    
+                    <!-- Subtext -->
+                    <p style="font-size: 1.125rem; color: #666; margin-bottom: 32px; line-height: 1.7; max-width: 440px; letter-spacing: 0.01em;">
+                        Automatically reply to messages on WhatsApp, Messenger, Telegram, Instagram & more. Your personal AI that never sleeps.
+                    </p>
+                    
+                    <!-- Google Play Badge (Desktop only) -->
+                    <a href="javascript:void(0)" onclick="showComingSoon()" class="desktop-play-badge" style="display: inline-flex; align-items: center; gap: 12px; background: #1a1a1a; padding: 12px 24px; border-radius: 12px; text-decoration: none; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                            <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.808 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/>
+                        </svg>
+                        <div>
+                            <div style="font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em;">Get it on</div>
+                            <div style="font-size: 18px; color: white; font-weight: 600; letter-spacing: 0.02em;">Google Play</div>
+                        </div>
+                    </a>
+                    
+                    <!-- Stats -->
+                    <div class="stats-row" style="display: flex; gap: 40px; margin-top: 48px;">
+                        <div>
+                            <div class="text-dark" style="font-size: 28px; font-weight: 700; color: #1a1a1a;">50K+</div>
+                            <div style="font-size: 13px; color: #999;">Active Users</div>
+                        </div>
+                        <div>
+                            <div class="text-dark" style="font-size: 28px; font-weight: 700; color: #1a1a1a;">10M+</div>
+                            <div style="font-size: 13px; color: #999;">Messages Sent</div>
+                        </div>
+                        <div>
+                            <div class="text-dark" style="font-size: 28px; font-weight: 700; color: #1a1a1a;">4.9★</div>
+                            <div style="font-size: 13px; color: #999;">App Rating</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right column - Phone with Platform icons -->
+                <div class="reveal hero-phone" style="display: flex; flex-direction: column; align-items: center;">
+                    <!-- Platform icons with "for" arrow -->
+                    <div class="platform-row" style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center;">
+                        <span class="handwritten">for</span>
+                        <div style="display: flex; gap: 12px;">
+                            <div class="platform-icon" title="WhatsApp" style="width: 44px; height: 44px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-6 h-6" fill="#25D366" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            </div>
+                            <div class="platform-icon" title="Messenger" style="width: 44px; height: 44px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-6 h-6" fill="#0084FF" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg>
+                            </div>
+                            <div class="platform-icon" title="Telegram" style="width: 44px; height: 44px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-6 h-6" fill="#26A5E4" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                            </div>
+                            <div class="platform-icon" title="Instagram" style="width: 44px; height: 44px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-6 h-6" fill="url(#ig)" viewBox="0 0 24 24">
+                                    <defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#833ab4"/><stop offset="50%" style="stop-color:#fd1d1d"/><stop offset="100%" style="stop-color:#fcb045"/></linearGradient></defs>
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                </svg>
+                            </div>
+                            <div class="platform-icon" title="Facebook" style="width: 44px; height: 44px; border-radius: 12px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-6 h-6" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone Mockup -->
+                    <div class="phone-mockup" style="position: relative; width: 280px; height: 540px;">
+                        <div class="phone-dark" style="width: 100%; height: 100%; background: #1a1a1a; border-radius: 36px; padding: 8px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.2);">
+                            <div class="phone-screen" style="width: 100%; height: 100%; background: white; border-radius: 28px; overflow: hidden;">
+                                <!-- App-style header with logo -->
+                                <div style="background: #075e54; padding: 14px; display: flex; align-items: center; gap: 10px;">
+                                    <img src="logo.png" alt="AI AutoResponder" style="width: 36px; height: 36px; border-radius: 8px; object-fit: contain;">
+                                    <div>
+                                        <div style="color: white; font-weight: 600; font-size: 14px;">AI Assistant</div>
+                                        <div style="color: #25d366; font-size: 10px;">Online</div>
+                                    </div>
+                                </div>
+                                <!-- Chat area -->
+                                <div class="chat-area-dark" style="background: #f5f5f5; padding: 14px; height: 320px; display: flex; flex-direction: column; gap: 8px; overflow: hidden;">
+                                    <div style="background: white; padding: 10px 14px; border-radius: 18px 18px 18px 4px; max-width: 80%; font-size: 13px; color: #333;">Hey! What are you doing?</div>
+                                    <div style="background: #dcf8c6; padding: 10px 14px; border-radius: 18px 18px 4px 18px; max-width: 80%; font-size: 13px; color: #333;">Hey! My boss is working. I'll let him know! 😊</div>
+                                    <div style="background: white; padding: 10px 14px; border-radius: 18px 18px 18px 4px; max-width: 80%; font-size: 13px; color: #333;">Cool! What's he building?</div>
+                                    <div style="background: #dcf8c6; padding: 10px 14px; border-radius: 18px 18px 4px 18px; max-width: 80%; font-size: 13px; color: #333;">An amazing AI app! 🤖</div>
+                                </div>
+                                <!-- Input area -->
+                                <div class="input-area-dark" style="background: white; padding: 10px 14px; display: flex; align-items: center; gap: 8px;">
+                                    <input type="text" placeholder="Type a message..." style="flex: 1; background: #f0f0f0; border: none; border-radius: 20px; padding: 10px 14px; font-size: 13px; outline: none;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #075e54; display: flex; align-items: center; justify-content: center;">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mobile Download Button (after phone) -->
+                    <a href="javascript:void(0)" onclick="showComingSoon()" class="mobile-download-btn" style="display: none; align-items: center; gap: 10px; background: #1a1a1a; color: white; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.808 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+                        Download APK
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" style="background: #fafafa;">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; color: #1a1a1a;">Try It <span class="gradient-text">Live</span></h2>
+                <p style="color: #666; font-size: 1.125rem;">Experience the AI in action.</p>
+            </div>
+            <div class="max-w-md mx-auto reveal">
+                <div class="card-dark" style="background: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);">
+                    <div class="flex items-center gap-3 pb-4 border-b border-gray-100;">
+                        <img src="logo.png" alt="AI AutoResponder" style="width: 44px; height: 44px; border-radius: 50%; object-fit: contain;">
+                        <div>
+                            <div class="text-dark" style="font-weight: 600; font-size: 15px; color: #1a1a1a;">AI Assistant</div>
+                            <div style="font-size: 12px; color: #22c55e;">Online</div>
+                        </div>
+                    </div>
+                    <div id="chatDemo" class="demo-chat" style="height: 280px; overflow-y: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="demo-msg-received msg-received">Hi! I'm your AI assistant. Type a message!</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" class="chat-input" id="demoInput2" placeholder="Type your message..." onkeypress="handleDemoKey(event)" style="width: 100%; background: #f5f5f5; border: none; border-radius: 25px; padding: 12px 20px; font-size: 14px; outline: none;">
+                        <button style="width: 48px; height: 48px; border-radius: 50%; background: #1a1a1a; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;" onclick="sendDemoMsg()">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" style="background: white;">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; color: #1a1a1a;">Powerful <span class="gradient-text">Features</span></h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="reveal feature-card" style="padding: 28px; border-radius: 20px; background: #fafafa; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    </div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">Context-Aware AI</h3>
+                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Retrieves your personal info for accurate responses.</p>
+                </div>
+                <div class="reveal feature-card" style="padding: 28px; border-radius: 20px; background: #fafafa; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">Multi-Platform</h3>
+                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Works with WhatsApp, Messenger, Telegram & more.</p>
+                </div>
+                <div class="reveal feature-card" style="padding: 28px; border-radius: 20px; background: #fafafa; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px; color: #1a1a1a;">Smart Rules</h3>
+                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Create custom quick replies and triggers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section with Slider -->
+    <section id="reviews" style="background: #fafafa;">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; color: #1a1a1a;">What Users <span class="gradient-text">Say</span></h2>
+            </div>
+            
+            <!-- Sliding Reviews -->
+            <div class="reviews-slider">
+                <div class="reviews-track">
+                    <!-- First set of reviews -->
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"This app changed my life! Never miss a message again."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Sarah K.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Best auto responder! The custom personas are genius."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Mike R.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Finally can focus on work. Absolutely brilliant!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Jessica L.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"My business is booming thanks to this app!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">David Chen</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"The AI responses are incredibly natural!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Emily W.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Worth every penny! Game changer for my business."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Alex Turner</div>
+                    </div>
+                    
+                    <!-- Duplicate set for infinite scroll -->
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"This app changed my life! Never miss a message again."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Sarah K.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Best auto responder! The custom personas are genius."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Mike R.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Finally can focus on work. Absolutely brilliant!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Jessica L.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"My business is booming thanks to this app!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">David Chen</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"The AI responses are incredibly natural!"</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Emily W.</div>
+                    </div>
+                    <div class="review-card reveal" style="padding: 24px; border-radius: 20px; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                        <div style="color: #fbbf24; margin-bottom: 12px;">★★★★★</div>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">"Worth every penny! Game changer for my business."</p>
+                        <div class="text-dark" style="font-weight: 600; color: #1a1a1a;">Alex Turner</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" style="background: #1a1a1a; padding: 100px 20px;">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: white; margin-bottom: 20px;">Ready to <span class="gradient-text">Automate</span>?</h2>
+            <p style="font-size: 1.125rem; color: #999; margin-bottom: 40px;">Download the APK and start living your life while AI handles your messages.</p>
+            <button class="btn-primary" onclick="showComingSoon()" style="background: white; color: #1a1a1a;">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Download APK
+            </button>
+            <p style="color: #666; margin-top: 20px; font-size: 14px;">Version 1.0.0 • Requires Android 8.0+</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #f5f5f5; padding: 60px 20px 30px; border-top: 1px solid #eee;">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="AI AutoResponder" class="w-10 h-10 rounded-xl" style="object-fit: contain;">
+                    <span class="text-xl font-bold nav-text" style="color: #1a1a1a;">AI AutoResponder</span>
+                </div>
+                <div class="flex gap-6">
+                    <a href="#features" class="nav-text" style="color: #666; font-weight: 500;">Features</a>
+                    <a href="#demo" class="nav-text" style="color: #666; font-weight: 500;">Demo</a>
+                    <a href="#reviews" class="nav-text" style="color: #666; font-weight: 500;">Reviews</a>
+                    <a href="#download" class="nav-text" style="color: #666; font-weight: 500;">Download</a>
+                </div>
+                <div class="flex gap-4">
+                    <a href="https://x.com/Abir7109" target="_blank" style="width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="https://github.com/Abir7109" target="_blank" style="width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="https://instagram.com/Abir7109" target="_blank" style="width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #eee; padding-top: 24px; text-align: center; color: #999; font-size: 14px;">
+                © 2026 AI AutoResponder. Built with ♥ by RM Abir
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Coming Soon Modal
+        function showComingSoon() {
+            document.getElementById('comingSoonModal').style.display = 'flex';
+        }
+        
+        function closeComingSoonModal() {
+            document.getElementById('comingSoonModal').style.display = 'none';
+        }
+        
+        function closeComingSoon(event) {
+            if (event.target.id === 'comingSoonModal') {
+                closeComingSoonModal();
+            }
+        }
+
+        // Lenis smooth scroll
+        const lenis = new Lenis({ duration: 1, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // Reveal animations
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            revealElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // Chat Demo functionality
+        const GROQ_API_KEY = '';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        
+        const personas = {
+            professional: { system: 'Professional AI assistant. Keep responses formal, concise and business-oriented. Short messages.' },
+            friendly: { system: 'Friendly AI assistant. Keep responses warm, casual and use emojis. Conversational.' },
+            witty: { system: 'Witty AI assistant. Give clever, humorous responses. Playful but short.' },
+            minimal: { system: 'Minimalist AI assistant. Keep responses very short, 1-2 sentences max.' }
+        };
+        
+        let currentPersona = 'friendly';
+        let chatHistory = [];
+
+        async function getGroqResponse(userMessage, persona) {
+            chatHistory.push({ role: 'user', content: userMessage });
+            try {
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: [{ role: 'system', content: personas[persona].system }, ...chatHistory.slice(-6)], temperature: 0.7, max_tokens: 100 })
+                });
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+                chatHistory.push({ role: 'assistant', content: aiResponse });
+                return aiResponse;
+            } catch (error) { return "Sorry, having trouble connecting. Try again!"; }
+        }
+
+        function addMessage(text, isSent) {
+            const container = document.getElementById('chatDemo');
+            const msg = document.createElement('div');
+            msg.className = isSent ? 'msg-sent demo-msg-sent' : 'msg-received demo-msg-received';
+            msg.textContent = text;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatDemo');
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.id = 'typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+        async function handleDemoKey(e) { if (e.key === 'Enter') await sendDemoMsg(); }
+
+        async function sendDemoMsg() {
+            const input = document.getElementById('demoInput2');
+            const text = input.value.trim();
+            if (!text) return;
+            addMessage(text, true);
+            input.value = '';
+            showTyping();
+            const response = await getGroqResponse(text, currentPersona);
+            hideTyping();
+            addMessage(response, false);
+        }
+
+        function triggerConfetti() {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#22d3ee', '#8b5cf6', '#f472b6'] });
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
