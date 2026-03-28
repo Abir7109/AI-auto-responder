@@ -267,7 +267,7 @@
                 <a href="#features" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Features</a>
                 <a href="#demo" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Demo</a>
                 <a href="#reviews" class="nav-text" style="color: #666; font-weight: 500; transition: 0.3s;">Reviews</a>
-                    <a href="app-release.apk" download class="btn-primary">Download</a>
+                    <a href="Ai-autoresponder.apk" download class="btn-primary">Download</a>
             </div>
         </div>
     </nav>
@@ -308,7 +308,7 @@
                     </p>
                     
                     <!-- Download APK Badge (Desktop only) -->
-                    <a href="app-release.apk" download class="desktop-play-badge" style="display: inline-flex; align-items: center; gap: 12px; background: #1a1a1a; padding: 12px 24px; border-radius: 12px; text-decoration: none; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <a href="Ai-autoresponder.apk" download class="desktop-play-badge" style="display: inline-flex; align-items: center; gap: 12px; background: #1a1a1a; padding: 12px 24px; border-radius: 12px; text-decoration: none; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
                             <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.808 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/>
                         </svg>
@@ -392,7 +392,7 @@
                         </div>
                     </div>
                     <!-- Mobile Download Button (after phone) -->
-                    <a href="app-release.apk" download class="mobile-download-btn" style="display: none; align-items: center; gap: 10px; background: #1a1a1a; color: white; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <a href="Ai-autoresponder.apk" download class="mobile-download-btn" style="display: none; align-items: center; gap: 10px; background: #1a1a1a; color: white; padding: 14px 28px; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.808 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
                         Download APK
                     </a>
@@ -546,7 +546,7 @@
         <div class="max-w-3xl mx-auto text-center">
             <h2 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; color: white; margin-bottom: 20px;">Ready to <span class="gradient-text">Automate</span>?</h2>
             <p style="font-size: 1.125rem; color: #999; margin-bottom: 40px;">Download the APK and start living your life while AI handles your messages.</p>
-            <a href="app-release.apk" download class="btn-primary" style="background: white; color: #1a1a1a; text-decoration: none;">
+            <a href="Ai-autoresponder.apk" download class="btn-primary" style="background: white; color: #1a1a1a; text-decoration: none;">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Download APK
             </a>
@@ -621,32 +621,43 @@
         revealOnScroll();
 
         // Chat Demo functionality
-        const GROQ_API_KEY = '';
-        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-        
+        const CHAT_API_URL = '/api/chat';
+
         const personas = {
             professional: { system: 'Professional AI assistant. Keep responses formal, concise and business-oriented. Short messages.' },
             friendly: { system: 'Friendly AI assistant. Keep responses warm, casual and use emojis. Conversational.' },
             witty: { system: 'Witty AI assistant. Give clever, humorous responses. Playful but short.' },
             minimal: { system: 'Minimalist AI assistant. Keep responses very short, 1-2 sentences max.' }
         };
-        
+
         let currentPersona = 'friendly';
         let chatHistory = [];
 
-        async function getGroqResponse(userMessage, persona) {
+        async function getAIResponse(userMessage, persona) {
             chatHistory.push({ role: 'user', content: userMessage });
             try {
-                const response = await fetch(GROQ_API_URL, {
+                const messages = [
+                    { role: 'system', content: personas[persona].system },
+                    ...chatHistory.slice(-6)
+                ];
+                const response = await fetch(CHAT_API_URL, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: [{ role: 'system', content: personas[persona].system }, ...chatHistory.slice(-6)], temperature: 0.7, max_tokens: 100 })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages })
                 });
+                if (!response.ok) {
+                    console.error('API error:', response.status);
+                    return "Sorry, having trouble connecting. Try again!";
+                }
                 const data = await response.json();
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    console.error('Unexpected API response:', data);
+                    return "Sorry, having trouble connecting. Try again!";
+                }
                 const aiResponse = data.choices[0].message.content;
                 chatHistory.push({ role: 'assistant', content: aiResponse });
                 return aiResponse;
-            } catch (error) { return "Sorry, having trouble connecting. Try again!"; }
+            } catch (error) { console.error('Fetch error:', error); return "Sorry, having trouble connecting. Try again!"; }
         }
 
         function addMessage(text, isSent) {
@@ -679,7 +690,7 @@
             addMessage(text, true);
             input.value = '';
             showTyping();
-            const response = await getGroqResponse(text, currentPersona);
+            const response = await getAIResponse(text, currentPersona);
             hideTyping();
             addMessage(response, false);
         }
