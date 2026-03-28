@@ -59,6 +59,7 @@ android/app/release-keystore.jks
 # Built APK files
 *.apk
 *.aab
+!website/*.apk
 
 # Root screenshot images (keep for GitHub repo)
 !/dashboard.jpeg
