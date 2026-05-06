@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed state - scale down to 0.95 -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#C4B49A"
+                android:endColor="#B0A285"
+                android:angle="135"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+    <!-- Focused state -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#E8DDD0"
+                android:endColor="#DFD0B8"
+                android:angle="135"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+    <!-- Hover state -->
+    <item android:state_hovered="true">
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#E8DDD0"
+                android:endColor="#DFD0B8"
+                android:angle="135"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+    <!-- Default state -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#DFD0B8"
+                android:endColor="#C4B49A"
+                android:angle="135"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+</selector>

@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// AI Auto-Responder Models
+model AutoReplyRule {
+  id        String   @id @default(cuid())
+  trigger   String   // Trigger word/phrase
+  response  String?  // Custom response (null if AI-generated)
+  useAI     Boolean  @default(false) // Whether to use AI for response
+  enabled   Boolean  @default(true)
+  priority  Int      @default(0) // Higher priority rules checked first
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppSettings {
+  id                String  @id @default(cuid())
+  serviceEnabled    Boolean @default(false)
+  replyWhatsApp     Boolean @default(true)
+  replyMessenger    Boolean @default(true)
+  replyTelegram     Boolean @default(false)
+  aiPersona         String  @default("professional")
+  autoDelay         String  @default("2")
+  quietHours        Boolean @default(false)
+  quietStart        String  @default("22:00")
+  quietEnd          String  @default("08:00")
+  apiKey            String? // Encrypted API key
+  apiKeyValid       Boolean @default(false)
+}
+
+model ReplyHistory {
+  id           String   @id @default(cuid())
+  platform     String   // whatsapp, messenger, telegram
+  triggerMatch String?  // Which rule was matched
+  originalMsg  String   // Original incoming message
+  sentReply    String   // Reply that was sent
+  usedAI       Boolean  @default(false)
+  responseTime Int?     // Response time in ms
+  createdAt    DateTime @default(now())
+}

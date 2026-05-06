@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI AutoResponder - The Future of Messaging</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0A0A0A;
+            --bg-secondary: #141414;
+            --accent-primary: #00D4FF;
+            --accent-secondary: #00FF88;
+            --accent-tertiary: #FF6B6B;
+            --text-primary: #FFFFFF;
+            --text-secondary: #888888;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Dark Aurora Background */
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(0, 255, 136, 0.06) 0%, transparent 50%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .orb-1 { width: 400px; height: 400px; background: #00D4FF; top: -100px; right: -50px; }
+        .orb-2 { width: 300px; height: 300px; background: #00FF88; bottom: 10%; left: -50px; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+        }
+
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.015;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.75rem 2rem;
+        }
+
+        /* Cyan glow button */
+        .glow-btn {
+            background: linear-gradient(135deg, #00D4FF, #00FF88);
+            border: none;
+            padding: 0.875rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0A0A0A;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .glow-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Dark glass card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            transition: all 0.35s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00D4FF 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Phone frame */
+        .phone-frame {
+            position: relative;
+            width: 270px;
+            height: 540px;
+            background: #050505;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 35px 70px -15px rgba(0,0,0,0.7),
+                0 0 40px -15px rgba(0, 212, 255, 0.15);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0d0d0d 0%, #050505 100%);
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        /* Chat */
+        .chat-container { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; height: 100%; overflow-y: auto; }
+
+        .msg {
+            max-width: 82%;
+            padding: 0.55rem 0.85rem;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            animation: msgIn 0.3s ease-out;
+        }
+
+        @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .msg-received {
+            background: rgba(0, 212, 255, 0.12);
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .msg-sent {
+            background: rgba(0, 255, 136, 0.1);
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+            border: 1px solid rgba(0, 255, 136, 0.08);
+        }
+
+        .typing {
+            display: flex; gap: 4px; padding: 0.55rem 0.85rem;
+            background: rgba(255,255,255,0.05); border-radius: 12px; width: fit-content;
+        }
+
+        .typing span {
+            width: 5px; height: 5px; background: #00D4FF; border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(1) { animation-delay: 0s; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+        .chat-input-wrapper { position: absolute; bottom: 0.7rem; left: 0.7rem; right: 0.7rem; }
+
+        .chat-input {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px; padding: 0.55rem 0.9rem; color: white; outline: none;
+            font-size: 0.78rem; transition: all 0.3s;
+        }
+
+        .chat-input:focus { border-color: #00D4FF; background: rgba(0, 212, 255, 0.08); }
+
+        /* Persona */
+        .persona-card { padding: 1.25rem; cursor: pointer; transition: all 0.3s ease; }
+        .persona-card.active, .persona-card:hover { background: rgba(0, 212, 255, 0.08); border-color: rgba(0, 212, 255, 0.25); }
+        .persona-card.active { border-color: #00D4FF; }
+        .persona-emoji { font-size: 2.25rem; margin-bottom: 0.5rem; }
+
+        /* Feature */
+        .feature-card { padding: 1.5rem; }
+        .feature-icon {
+            width: 48px; height: 48px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00D4FF, #00FF88);
+        }
+        .feature-card:hover .feature-icon { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.25); }
+
+        /* Reveal */
+        .reveal { opacity: 0; transform: translateY(35px); transition: all 0.6s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        section { position: relative; z-index: 10; padding: 5.5rem 1.5rem; }
+
+        .hero-section { min-height: 100vh; display: flex; align-items: center; padding-top: 4.5rem; }
+        .hero-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
+
+        .hero-text h1 { font-size: clamp(2.25rem, 5vw, 4rem); font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+        .hero-text p { font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 1.75rem; max-width: 440px; line-height: 1.6; }
+
+        .hero-buttons { display: flex; gap: 0.875rem; flex-wrap: wrap; }
+
+        .btn-secondary {
+            padding: 0.875rem 2rem; border-radius: 50px; font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.12); background: transparent; color: white;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+
+        .hero-visual { display: flex; justify-content: center; }
+        .phone-frame { animation: phoneFloat 7s ease-in-out infinite; }
+        @keyframes phoneFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem;
+            background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 50px; font-size: 0.75rem; margin-bottom: 1rem;
+        }
+        .badge-dot { width: 5px; height: 5px; background: #00FF88; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 1.75rem; font-weight: 700; color: #00D4FF; }
+        .stat-label { color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.15rem; }
+
+        .sticky-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(16px);
+            border-top: 1px solid var(--glass-border); padding: 0.75rem 1.5rem;
+            z-index: 1000; transform: translateY(100%); transition: transform 0.3s ease;
+        }
+        .sticky-bar.visible { transform: translateY(0); }
+        .sticky-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+
+        footer { position: relative; z-index: 10; border-top: 1px solid var(--glass-border); padding: 2rem 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: #00D4FF; border-radius: 3px; }
+
+        @media (max-width: 1024px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+            .hero-text p { margin: 0 auto 1.75rem; }
+            .hero-buttons { justify-content: center; }
+            .hero-visual { order: -1; }
+            .stats-grid { justify-content: center; }
+        }
+
+        @media (max-width: 768px) {
+            section { padding: 3.5rem 1rem; }
+            .hero-text h1 { font-size: 1.875rem; }
+            .phone-frame { width: 220px; height: 440px; }
+        }
+
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-header h2 { font-size: clamp(1.625rem, 3.5vw, 2.5rem); font-weight: 700; margin-bottom: 0.625rem; }
+        .section-header p { font-size: 0.95rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto; }
+
+        .platform-icons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.75rem; }
+        .platform-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+        }
+        .platform-icon:hover { background: rgba(0, 212, 255, 0.15); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="hero-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="grid-pattern"></div>
+    </div>
+    <div class="noise"></div>
+
+    <nav class="nav-container" id="navbar">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <img src="logo.png" alt="AI AutoResponder" class="w-9 h-9 rounded-lg" style="object-fit: contain;">
+                <span class="text-base font-bold">AI AutoResponder</span>
+            </div>
+            <div class="hidden md:flex items-center gap-5">
+                <a href="#features" class="text-gray-500 hover:text-white transition text-sm font-medium">Features</a>
+                <a href="#demo" class="text-gray-500 hover:text-white transition text-sm font-medium">Demo</a>
+                <a href="#personas" class="text-gray-500 hover:text-white transition text-sm font-medium">Personas</a>
+                <a href="#screenshots" class="text-gray-500 hover:text-white transition text-sm font-medium">Screenshots</a>
+                <a href="#download" class="text-gray-500 hover:text-white transition text-sm font-medium">Download</a>
+                <button class="glow-btn py-2 px-4 text-sm">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="badge reveal">
+                    <span class="badge-dot"></span>
+                    <span>Powered by Groq AI</span>
+                </div>
+                <h1 class="reveal">Your Personal<br><span class="gradient-text">AI Assistant</span><br>That Never Sleeps</h1>
+                <p class="reveal">The world's most advanced AI auto-responder. Powered by cutting-edge AI models to handle your messages with human-like intelligence.</p>
+                <div class="hero-buttons reveal">
+                    <button class="glow-btn" onclick="triggerConfetti()">Download APK <svg class="w-4 h-4 inline-block ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></button>
+                    <button class="btn-secondary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
+                </div>
+                <div class="stats-grid reveal">
+                    <div class="stat-item"><div class="stat-number">50K+</div><div class="stat-label">Active Users</div></div>
+                    <div class="stat-item"><div class="stat-number">10M+</div><div class="stat-label">Messages Sent</div></div>
+                    <div class="stat-item"><div class="stat-number">4.9</div><div class="stat-label">App Rating</div></div>
+                </div>
+            </div>
+            <div class="hero-visual reveal">
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="chat-container">
+                            <div class="msg msg-received">Hey! What are you doing?</div>
+                            <div class="msg msg-sent">Hey! My boss is working. I'll let him know! 😊</div>
+                            <div class="msg msg-received">Cool! What's he building?</div>
+                            <div class="msg msg-sent">An amazing AI app! It's super cool 🤖</div>
+                        </div>
+                        <div class="chat-input-wrapper"><input type="text" class="chat-input" placeholder="Type a message..." id="heroInput" onkeypress="handleHeroKey(event)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo">
+        <div class="max-w-4.5xl mx-auto">
+            <div class="section-header reveal"><h2>Try It <span class="gradient-text">Live</span></h2><p>Experience the AI in action. Type a message and watch it respond.</p></div>
+            <div class="max-w-xs mx-auto reveal">
+                <div class="glass-card" style="padding: 1rem;">
+                    <div class="flex items-center gap-2.5 mb-2.5 pb-2.5 border-b border-[rgba(255,255,255,0.06)]">
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#00D4FF] to-[#00FF88] flex items-center justify-center">
+                            <svg class="w-4.5 h-4.5 text-black" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"></path><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"></path></svg>
+                        </div>
+                        <div><div class="font-semibold text-sm">AI Assistant</div><div class="text-xs text-gray-600">Online • Powered by Groq</div></div>
+                        <div class="ml-auto"><div class="w-2 h-2 rounded-full bg-green-500"></div></div>
+                    </div>
+                    <div id="chatDemo" style="height: 240px; overflow-y: auto; margin-bottom: 0.6rem;"><div class="msg msg-received">Hi! I'm your AI assistant. Type a message!</div></div>
+                    <div class="flex gap-2"><input type="text" class="chat-input" id="demoInput2" placeholder="Type..." onkeypress="handleDemoKey(event)"><button class="w-9 h-9 rounded-full bg-gradient-to-br from-[#00D4FF] to-[#00FF88] flex items-center justify-center flex-shrink-0" onclick="sendDemoMsg()"><svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg></button></div>
+                </div>
+            </div>
+            <div class="platform-icons reveal">
+                <div class="platform-icon" title="WhatsApp"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
+                <div class="platform-icon" title="Messenger"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg></div>
+                <div class="platform-icon" title="Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
+                <div class="platform-icon" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div>
+                <div class="platform-icon" title="Facebook"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="personas" style="background: rgba(0,0,0,0.2);">
+        <div class="max-w-5xl mx-auto">
+            <div class="section-header reveal"><h2>Choose Your <span class="gradient-text">Persona</span></h2><p>Customize how the AI responds to match your style.</p></div>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="glass-card persona-card" onclick="selectPersona(this,'professional')"><div class="persona-emoji">💼</div><h3 class="text-base font-bold mb-0.5">Professional</h3><p class="text-gray-500 text-xs">Formal and concise.</p></div>
+                <div class="glass-card persona-card active" onclick="selectPersona(this,'friendly')"><div class="persona-emoji">😊</div><h3 class="text-base font-bold mb-0.5">Friendly</h3><p class="text-gray-500 text-xs">Warm and casual.</p></div>
+                <div class="glass-card persona-card" onclick="selectPersona(this,'witty')"><div class="persona-emoji">😄</div><h3 class="text-base font-bold mb-0.5">Witty</h3><p class="text-gray-500 text-xs">Clever and funny.</p></div>
+                <div class="glass-card persona-card" onclick="selectPersona(this,'minimal')"><div class="persona-emoji">😐</div><h3 class="text-base font-bold mb-0.5">Minimal</h3><p class="text-gray-500 text-xs">Short and direct.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Slider -->
+    <section style="padding: 4rem 0; overflow: hidden;">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-header reveal"><h2>What Users <span class="gradient-text">Say</span></h2></div>
+            
+            <div style="position: relative; height: 130px; overflow: hidden;">
+                <div style="display: flex; animation: slideLeft 45s linear infinite;">
+                    <!-- Original set -->
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"This app changed my life! Never miss a message again. The AI responses are so natural."</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Sarah K.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Best auto responder! The custom personas are genius!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Mike R.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Finally can focus on work. Absolutely brilliant!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Jessica L.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"The AI feels like a real assistant!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- David P.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Groq integration makes responses super fast!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Emily W.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Gone from 500+ unread to zero! Game changer."</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Alex T.</p>
+                    </div>
+                    <!-- Duplicate set for seamless loop -->
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"This app changed my life! Never miss a message again. The AI responses are so natural."</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Sarah K.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Best auto responder! The custom personas are genius!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Mike R.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Finally can focus on work. Absolutely brilliant!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Jessica L.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"The AI feels like a real assistant!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- David P.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Groq integration makes responses super fast!"</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Emily W.</p>
+                    </div>
+                    <div class="glass-card" style="padding: 1.25rem; min-width: 280px; flex-shrink: 0; margin-right: 1.5rem;">
+                        <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;"><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span><span style="color: #00FF88;">★</span></div>
+                        <p class="text-sm text-gray-300">"Gone from 500+ unread to zero! Game changer."</p>
+                        <p class="text-xs text-cyan-400 mt-2">- Alex T.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes slideLeft {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+        </style>
+    </section>
+
+    <section id="features">
+        <div class="max-w-5xl mx-auto">
+            <div class="section-header reveal"><h2>Powerful <span class="gradient-text">Features</span></h2><p>Everything you need to automate your messaging.</p></div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><h3 class="text-base font-bold mb-1.5">Context-Aware AI</h3><p class="text-gray-500 text-sm">Retrieves your personal info for accurate responses.</p></div>
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div><h3 class="text-base font-bold mb-1.5">Multi-Platform</h3><p class="text-gray-500 text-sm">WhatsApp, Messenger, Telegram, Instagram & more.</p></div>
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></div><h3 class="text-base font-bold mb-1.5">Smart Rules</h3><p class="text-gray-500 text-sm">Custom quick replies and keyword triggers.</p></div>
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div><h3 class="text-base font-bold mb-1.5">Analytics</h3><p class="text-gray-500 text-sm">Track reply counts and response times.</p></div>
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><h3 class="text-base font-bold mb-1.5">Quiet Hours</h3><p class="text-gray-500 text-sm">Set custom quiet hours.</p></div>
+                <div class="feature-card glass-card reveal"><div class="feature-icon"><svg class="w-5.5 h-5.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg></div><h3 class="text-base font-bold mb-1.5">Notice Board</h3><p class="text-gray-500 text-sm">Captures important messages.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="screenshots" style="background: rgba(0,0,0,0.2);">
+        <div class="max-w-5xl mx-auto">
+            <div class="section-header reveal"><h2>See It In <span class="gradient-text">Action</span></h2><p>Experience the power of AI auto-responding.</p></div>
+            
+            <!-- Phone Slideshow -->
+            <div class="flex justify-center">
+                <div class="phone-frame" style="width: 220px; height: 440px;">
+                    <div class="phone-screen">
+                        <div id="screenshotSlides" style="width: 100%; height: 100%; position: relative;">
+                            <img id="slideImg" src="dashboard.jpeg" alt="Screenshot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 28px;">
+                            <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px;">
+                                <span class="slide-dot active" style="width: 6px; height: 6px; background: #00D4FF; border-radius: 50%;"></span>
+                                <span class="slide-dot" style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%;"></span>
+                                <span class="slide-dot" style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%;"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-6">
+                <h3 id="slideTitle" class="text-base font-bold">Dashboard</h3>
+                <p id="slideDesc" class="text-gray-500 text-xs mt-1">Track your AI responses</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="download">
+        <div class="max-w-2.5xl mx-auto text-center">
+            <div class="glass-card p-8 reveal">
+                <h2 class="text-2.5xl md:text-3.25xl font-bold mb-2.5">Ready to <span class="gradient-text">Automate</span>?</h2>
+                <p class="text-gray-500 mb-5 max-w-xs mx-auto">Download the APK and start living your life while AI handles your messages.</p>
+                <button class="glow-btn text-base" onclick="triggerConfetti()">Download APK <svg class="w-4.5 h-4.5 inline-block ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></button>
+                <p class="mt-4 text-gray-600 text-sm">Version 1.0.0 • Requires Android 8.0+</p>
+                <div class="flex items-center justify-center gap-3 mt-3">
+                    <div class="flex items-center gap-1 text-xs text-gray-600"><svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg><span>Malware Scanned</span></div>
+                    <div class="flex items-center gap-1 text-xs text-gray-600"><svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg><span>Safe & Secure</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background: linear-gradient(180deg, transparent, rgba(0,212,255,0.05));">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <img src="logo.png" alt="AI AutoResponder" class="w-10 h-10 rounded-xl shadow-lg shadow-cyan-500/20" style="object-fit: contain;">
+                <span class="text-lg font-bold">AI AutoResponder</span>
+            </div>
+            
+            <div class="flex justify-center gap-6 mb-4 text-sm">
+                <a href="#features" class="text-gray-500 hover:text-cyan-400 transition">Features</a>
+                <a href="#demo" class="text-gray-500 hover:text-cyan-400 transition">Demo</a>
+                <a href="#personas" class="text-gray-500 hover:text-cyan-400 transition">Personas</a>
+                <a href="#screenshots" class="text-gray-500 hover:text-cyan-400 transition">Screenshots</a>
+                <a href="#download" class="text-gray-500 hover:text-cyan-400 transition">Download</a>
+            </div>
+            
+            <div class="flex justify-center gap-4 mb-4">
+                <a href="https://x.com/Abir7109" target="_blank" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan-500/20 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="https://github.com/Abir7109" target="_blank" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan-500/20 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://instagram.com/Abir7109" target="_blank" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan-500/20 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </a>
+            </div>
+            
+            <p class="text-gray-600 text-sm">© 2026 AI AutoResponder. Built with <span class="text-cyan-400">♥</span> by RM Abir</p>
+        </div>
+    </footer>
+
+    <div class="sticky-bar" id="stickyBar"><div class="sticky-content"><span class="font-semibold text-sm">AI AutoResponder</span><button class="glow-btn py-1.5 px-3.5 text-sm" onclick="triggerConfetti()">Download</button></div></div>
+
+    <script>
+        const lenis = new Lenis({ duration: 1, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); } requestAnimationFrame(raf);
+        
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        
+        const stickyBar = document.getElementById('stickyBar');
+        window.addEventListener('scroll', () => stickyBar.classList.toggle('visible', window.scrollY > 500));
+        
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => revealElements.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active'); });
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        const GROQ_API_KEY = '';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const personas = {
+            professional: { system: 'Professional AI assistant. Keep responses formal, concise and business-oriented. Short messages.' },
+            friendly: { system: 'Friendly AI assistant. Keep responses warm, casual and use emojis. Conversational.' },
+            witty: { system: 'Witty AI assistant. Give clever, humorous responses. Playful but short.' },
+            minimal: { system: 'Minimalist AI assistant. Keep responses very short, 1-2 sentences max.' }
+        };
+        let currentPersona = 'friendly', chatHistory = [];
+
+        async function getGroqResponse(userMessage, persona) {
+            chatHistory.push({ role: 'user', content: userMessage });
+            try {
+                const response = await fetch(GROQ_API_URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: [{ role: 'system', content: personas[persona].system }, ...chatHistory.slice(-6)], temperature: 0.7, max_tokens: 100 })
+                });
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+                chatHistory.push({ role: 'assistant', content: aiResponse });
+                return aiResponse;
+            } catch (error) { return "Sorry, having trouble connecting. Try again!"; }
+        }
+
+        function addMessage(text, isSent) {
+            const container = document.getElementById('chatDemo');
+            const msg = document.createElement('div');
+            msg.className = `msg ${isSent ? 'msg-sent' : 'msg-received'}`;
+            msg.textContent = text;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatDemo');
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.id = 'typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+        async function handleDemoKey(e) { if (e.key === 'Enter') await sendDemoMsg(); }
+
+        function handleHeroKey(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('heroInput');
+                const text = input.value.trim();
+                if (text) {
+                    // Store message and scroll to demo
+                    sessionStorage.setItem('demoMessage', text);
+                    document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+                    // Auto-send after scroll
+                    setTimeout(() => {
+                        const demoInput = document.getElementById('demoInput2');
+                        demoInput.value = text;
+                        sendDemoMsg();
+                    }, 500);
+                }
+            }
+        }
+
+        // Check for pre-populated message on load
+        window.addEventListener('load', () => {
+            const savedMsg = sessionStorage.getItem('demoMessage');
+            if (savedMsg) {
+                sessionStorage.removeItem('demoMessage');
+            }
+        });
+
+        async function sendDemoMsg() {
+            const input = document.getElementById('demoInput2');
+            const text = input.value.trim();
+            if (!text) return;
+            addMessage(text, true);
+            input.value = '';
+            showTyping();
+            const response = await getGroqResponse(text, currentPersona);
+            hideTyping();
+            addMessage(response, false);
+        }
+
+        function selectPersona(card, persona) {
+            document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            currentPersona = persona;
+        }
+
+        function triggerConfetti() { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#00D4FF', '#00FF88'] }); }
+
+        // Screenshot Slideshow
+        const screenshots = [
+            { src: 'dashboard.jpeg', title: 'Dashboard', desc: 'Track your AI responses' },
+            { src: 'api tab.jpeg', title: 'API Config', desc: 'Connect your AI model' },
+            { src: 'about me screen.jpeg', title: 'Personalize', desc: 'Teach AI about yourself' }
+        ];
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            currentSlide = index;
+            const slide = screenshots[index];
+            document.getElementById('slideImg').src = slide.src;
+            document.getElementById('slideTitle').textContent = slide.title;
+            document.getElementById('slideDesc').textContent = slide.desc;
+            
+            document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+                dot.style.background = i === index ? '#00D4FF' : 'rgba(255,255,255,0.3)';
+            });
+        }
+        
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % screenshots.length;
+            showSlide(currentSlide);
+        }, 3000);
+
+        document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); const t = document.querySelector(a.getAttribute('href')); if (t) lenis.scrollTo(t); }));
+    </script>
+</body>
+</html>

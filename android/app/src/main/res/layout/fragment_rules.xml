@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background"
+    android:clipToPadding="false"
+    android:paddingTop="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto-Reply Rules"
+            android:textColor="@color/foreground"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Create Rule Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/glass_card_background"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create New Rule"
+                android:textColor="@color/foreground"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/triggerInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/glass_input_background"
+                android:hint="Trigger keyword..."
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/foreground"
+                android:textColorHint="@color/hint"/>
+
+            <!-- Response Type Toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/responseTypeQuick"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/response_type_selected_background"
+                    android:gravity="center"
+                    android:text="Quick Reply"
+                    android:textColor="@color/primary_foreground"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/responseTypeAI"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/glass_button_background"
+                    android:gravity="center"
+                    android:text="AI Response"
+                    android:textColor="@color/foreground"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/quickReplyContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
+
+                <EditText
+                    android:id="@+id/responseInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dp"
+                    android:background="@drawable/glass_input_background"
+                    android:hint="Reply message..."
+                    android:gravity="top"
+                    android:padding="12dp"
+                    android:textColor="@color/foreground"
+                    android:textColorHint="@color/hint"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/createRuleButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/primary_button_background"
+                android:text="Create Rule"
+                android:textColor="@color/primary_foreground"/>
+        </LinearLayout>
+
+        <!-- Rules List -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active Rules"
+            android:textColor="@color/foreground"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:id="@+id/rulesListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/glass_card_background"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No rules yet. Create your first rule above."
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:padding="16dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

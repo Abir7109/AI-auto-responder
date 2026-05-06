@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI Auto-Responder</string>
+    <string name="app_tagline">Intelligent Message Automation</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard">Dashboard</string>
+    <string name="service_status">Service Status</string>
+    <string name="service_enabled">AI monitoring active</string>
+    <string name="service_disabled">Service disabled</string>
+    <string name="total_replies">Total</string>
+    <string name="today_replies">Today</string>
+    <string name="response_speed">Speed</string>
+    <string name="active_platforms">Apps</string>
+    <string name="test_ai">Test AI Response</string>
+    <string name="platforms">Platforms</string>
+    <string name="active_rules">Active Rules</string>
+
+    <!-- Platforms -->
+    <string name="whatsapp">WhatsApp</string>
+    <string name="messenger">Messenger</string>
+    <string name="telegram">Telegram</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+
+    <!-- API Settings -->
+    <string name="api_settings">API Configuration</string>
+    <string name="api_key">Gemini API Key</string>
+    <string name="api_key_hint">Enter API key...</string>
+    <string name="api_key_valid">Valid</string>
+    <string name="ai_model">AI Model</string>
+    <string name="gemini_flash">Gemini 3 Flash</string>
+    <string name="gemini_pro">Gemini 3 Pro</string>
+    <string name="fast_free">Fast and Free</string>
+    <string name="more_capable">More capable</string>
+    <string name="recommended">Best</string>
+    <string name="save_config">Save Configuration</string>
+    <string name="offline_ai">Offline AI Option</string>
+    <string name="offline_ai_desc">Run Gemma 3 locally for complete privacy. Messages never leave your device.</string>
+
+    <!-- Rules -->
+    <string name="rules">Rules</string>
+    <string name="create_rule">Create New Rule</string>
+    <string name="trigger_word">Trigger Word</string>
+    <string name="trigger_hint">e.g., meeting, price...</string>
+    <string name="response_type">Response Type</string>
+    <string name="custom_response">Custom</string>
+    <string name="ai_response">AI</string>
+    <string name="response_message">Response Message</string>
+    <string name="response_hint">Enter response...</string>
+    <string name="your_rules">Your Rules</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="ai_persona">AI Persona</string>
+    <string name="persona_professional">Professional</string>
+    <string name="persona_friendly">Friendly</string>
+    <string name="persona_witty">Witty</string>
+    <string name="persona_minimal">Minimal</string>
+    <string name="auto_delay">Auto Delay</string>
+    <string name="quiet_hours">Quiet Hours</string>
+    <string name="quiet_start">Start</string>
+    <string name="quiet_end">End</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_desc">Enable notification access for auto-reply.</string>
+    <string name="open_settings">Open Settings</string>
+
+    <!-- About -->
+    <string name="about">About</string>
+    <string name="about_app">About App</string>
+    <string name="about_description">AI Auto-Responder automatically replies to your messages across WhatsApp, Messenger, and Telegram using advanced AI. Customize responses, set rules, and let AI handle your conversations intelligently.</string>
+    <string name="creator">Creator</string>
+    <string name="developer">Developer and Designer</string>
+    <string name="made_with_love">Made with love by RM ABIR</string>
+
+    <!-- Common -->
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="view_all">View All</string>
+    <string name="generating">Generating...</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_service">Auto-Reply Service</string>
+    <string name="notification_channel_alerts">Notification Alerts</string>
+    <string name="notification_service_running">Auto-reply service is running</string>
+    <string name="notification_permission_title">Notification Access Required</string>
+    <string name="notification_permission_message">Please grant notification access to enable auto-reply</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">AI Auto-Responder uses accessibility services to read incoming messages and automatically send AI-generated replies to WhatsApp, Messenger, Telegram, Facebook, and Instagram. This service monitors your screen to detect new messages and responds on your behalf.</string>
+    <string name="accessibility_permission_title">Accessibility Permission Required</string>
+    <string name="accessibility_permission_message">To enable automatic replies, please grant accessibility permission. This allows the app to read messages and type replies in messaging apps.</string>
+</resources>

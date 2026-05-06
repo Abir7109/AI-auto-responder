@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Exact from Web App -->
+    <color name="obsidian_dark">#0f1218</color>
+    <color name="obsidian_medium">#1a1f26</color>
+    <color name="accent_warm">#948979</color>
+    <color name="accent_sand">#DFD0B8</color>
+    
+    <!-- Background -->
+    <color name="background">#0f1218</color>
+    <color name="foreground">#f5efe6</color>
+    
+    <!-- Glass Card -->
+    <color name="card">#80000000</color>
+    <color name="card_foreground">#f5efe6</color>
+    
+    <!-- Primary -->
+    <color name="primary">#DFD0B8</color>
+    <color name="primary_foreground">#1a1f26</color>
+    
+    <!-- Secondary -->
+    <color name="secondary">#26000000</color>
+    <color name="secondary_foreground">#f5efe6</color>
+    
+    <!-- Muted -->
+    <color name="muted">#66000000</color>
+    <color name="muted_foreground">#99f5efe6</color>
+    
+    <!-- Border -->
+    <color name="border">#0fffffff</color>
+    <color name="input">#0affffff</color>
+    <color name="ring">#4DDFD0B8</color>
+    
+    <!-- Destructive -->
+    <color name="destructive">#f43f5e</color>
+    
+    <!-- Platform Colors -->
+    <color name="whatsapp">#25D366</color>
+    <color name="messenger">#0099FF</color>
+    <color name="telegram">#26A5E4</color>
+    <color name="facebook">#1877F2</color>
+    <color name="instagram">#E4405F</color>
+    
+    <!-- Status Colors -->
+    <color name="green_500">#22c55e</color>
+    <color name="green_400">#4ade80</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#f5efe6</color>
+    <color name="text_secondary">#948979</color>
+    
+    <!-- Surface Colors -->
+    <color name="surface">#1a1f26</color>
+    <color name="surface_variant">#2f3744</color>
+    
+    <!-- Ripple -->
+    <color name="ripple">#1Affffff</color>
+    <color name="hint">#80948793</color>
+    
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+    <color name="white_5">#0Dffffff</color>
+    <color name="white_10">#1Affffff</color>
+
+    <!-- Switch Colors -->
+    <color name="switch_thumb_color">@color/accent_sand</color>
+    <color name="switch_track_color">@color/accent_warm</color>
+
+    <!-- Brain Tab Colors -->
+    <color name="obsidian_background">#0f1218</color>
+    <color name="obsidian_surface">#1a1f26</color>
+    <color name="obsidian_card">#252b35</color>
+    <color name="obsidian_accent">#DFD0B8</color>
+    <color name="obsidian_text_primary">#f5efe6</color>
+    <color name="obsidian_text_secondary">#948979</color>
+    
+    <!-- Notice Board Colors -->
+    <color name="blue_accent">#64B5F6</color>
+    <color name="amber">#FFB74D</color>
+    <color name="red">#EF5350</color>
+    <color name="glass_border">#33FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+</resources>
